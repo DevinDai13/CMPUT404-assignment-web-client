@@ -18,6 +18,12 @@
 # Write your own HTTP GET and POST
 # The point is to understand what you have to send and get experience with it
 
+# References:
+# https://stackoverflow.com/questions/9530950/parsing-hostname-and-port-from-string-or-url/17769986
+# answered Jul 21 '13 at 7:17. Accessed 02-01-2020
+
+# https://docs.python.org/3/library/urllib.parse.html Accessed 02-01-2020
+
 import sys
 import socket
 import re
@@ -49,9 +55,7 @@ class HTTPClient(object):
         return headers
 
     def get_body(self, data):
-        headers = self.get_headers(data)
-        body = data.replace(headers+"\r\n\r\n","")
-        return body
+        return data.split('\r\n\r\n')[1]
    
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))
@@ -72,14 +76,14 @@ class HTTPClient(object):
         return buffer.decode('utf-8')
 
     def GET(self, url, args=None):
-        parse = urlparse(url)
-        host = parse.hostname
-        port = parse.port
+        parsedContent = urlparse(url)
+        host = parsedContent.hostname
+        port = parsedContent.port
         if port == None:
             port = 80
         self.connect(host, port)
-        data = ('GET %s HTTP/1.1\r\nHost: %s \r\nConnection: close\r\n\r\n'%(url, host))
-        self.sendall(data)
+        sendBack = ('GET %s HTTP/1.1\r\nHost: %s \r\nConnection: close\r\n\r\n'%(url, host))
+        self.sendall(sendBack)
         response = self.recvall(self.socket)
         self.socket.close()
         print(response)
@@ -88,9 +92,9 @@ class HTTPClient(object):
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
-        parse = urlparse(url)
-        host = parse.hostname
-        port = parse.port
+        parsedContent = urlparse(url)
+        host = parsedContent.hostname
+        port = parsedContent.port
         if port == None:
             port = 80
         self.connect(host, port)
@@ -99,8 +103,8 @@ class HTTPClient(object):
         if args is not None:
             body_args = urlencode(args)
 
-        data = ('POST %s HTTP/1.1\r\nHost: %s \r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length:%s\r\nConnection: close\r\n\r\n%s'%(url, host,len(body_args), body_args))
-        self.sendall(data)
+        sendBack = ('POST %s HTTP/1.1\r\nHost: %s \r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length:%s\r\nConnection: close\r\n\r\n%s'%(url, host,len(body_args), body_args))
+        self.sendall(sendBack)
         response = self.recvall(self.socket)
         self.socket.close()
         code = self.get_code(response)
