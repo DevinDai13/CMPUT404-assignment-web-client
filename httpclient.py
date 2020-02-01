@@ -84,11 +84,11 @@ class HTTPClient(object):
         self.connect(host, port)
         sendBack = ('GET %s HTTP/1.1\r\nHost: %s \r\nConnection: close\r\n\r\n'%(url, host))
         self.sendall(sendBack)
-        response = self.recvall(self.socket)
+        reply = self.recvall(self.socket)
         self.socket.close()
-        print(response)
-        code = self.get_code(response)
-        body = self.get_body(response)
+        print(reply)
+        code = self.get_code(reply)
+        body = self.get_body(reply)
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
@@ -105,10 +105,10 @@ class HTTPClient(object):
 
         sendBack = ('POST %s HTTP/1.1\r\nHost: %s \r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length:%s\r\nConnection: close\r\n\r\n%s'%(url, host,len(body_args), body_args))
         self.sendall(sendBack)
-        response = self.recvall(self.socket)
+        reply = self.recvall(self.socket)
         self.socket.close()
-        code = self.get_code(response)
-        body = self.get_body(response)
+        code = self.get_code(reply)
+        body = self.get_body(reply)
         return HTTPResponse(code, body)
 
 
