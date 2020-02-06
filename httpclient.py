@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # coding: utf-8
 # Copyright 2020 Abram Hindle, Devin Dai, https://github.com/tywtyw2002, and https://github.com/treedust
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,19 +26,28 @@
 
 import sys
 import socket
-import re
 # you may use urllib to encode data appropriately
 from urllib.parse import urlparse, urlencode
 
 def help():
     print("httpclient.py [GET/POST] [URL]\n")
 
+
 class HTTPResponse(object):
     def __init__(self, code=200, body=""):
         self.code = code
         self.body = body
 
+
 class HTTPClient(object):
+    
+    def get_host_port(self,url):
+        parsedContent = urlparse(url)
+        host = parsedContent.hostname
+        port = parsedContent.port
+        if port == None:
+            port = 80
+        return host, port
 
     def connect(self, host, port):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -50,16 +59,16 @@ class HTTPClient(object):
         code = int(code)
         return code
 
-    def get_headers(self,data):
-        headers = data.split('\r\n\r\n')[0]
+    def get_headers(self, data):
+        headers = data.split("\r\n\r\n")[0]
         return headers
 
     def get_body(self, data):
-        return data.split('\r\n\r\n')[1]
-   
+        return data.split("\r\n\r\n")[1]
+
     def sendall(self, data):
-        self.socket.sendall(data.encode('utf-8'))
-        
+        self.socket.sendall(data.encode("utf-8"))
+
     def close(self):
         self.socket.close()
 
@@ -69,20 +78,19 @@ class HTTPClient(object):
         done = False
         while not done:
             part = sock.recv(1024)
-            if (part):
+            if part:
                 buffer.extend(part)
             else:
                 done = not part
-        return buffer.decode('utf-8')
+        return buffer.decode("utf-8")
 
     def GET(self, url, args=None):
-        parsedContent = urlparse(url)
-        host = parsedContent.hostname
-        port = parsedContent.port
-        if port == None:
-            port = 80
+        host, port = self.get_host_port(url)
         self.connect(host, port)
-        sendBack = ('GET %s HTTP/1.1\r\nHost: %s \r\nConnection: close\r\n\r\n'%(url, host))
+        sendBack = "GET %s HTTP/1.1\r\nHost: %s \r\nConnection: close\r\n\r\n" % (
+            url,
+            host,
+        )
         self.sendall(sendBack)
         reply = self.recvall(self.socket)
         self.socket.close()
@@ -92,18 +100,16 @@ class HTTPClient(object):
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
-        parsedContent = urlparse(url)
-        host = parsedContent.hostname
-        port = parsedContent.port
-        if port == None:
-            port = 80
+        host, port = self.get_host_port(url)
         self.connect(host, port)
-
         body_args = ""
         if args is not None:
             body_args = urlencode(args)
 
-        sendBack = ('POST %s HTTP/1.1\r\nHost: %s \r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length:%s\r\nConnection: close\r\n\r\n%s'%(url, host,len(body_args), body_args))
+        sendBack = (
+            "POST %s HTTP/1.1\r\nHost: %s \r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length:%s\r\nConnection: close\r\n\r\n%s"
+            % (url, host, len(body_args), body_args)
+        )
         self.sendall(sendBack)
         reply = self.recvall(self.socket)
         self.socket.close()
@@ -111,20 +117,20 @@ class HTTPClient(object):
         body = self.get_body(reply)
         return HTTPResponse(code, body)
 
-
     def command(self, url, command="GET", args=None):
-        if (command == "POST"):
-            return self.POST( url, args )
+        if command == "POST":
+            return self.POST(url, args)
         else:
-            return self.GET( url, args )
-    
+            return self.GET(url, args)
+
+
 if __name__ == "__main__":
     client = HTTPClient()
     command = "GET"
-    if (len(sys.argv) <= 1):
+    if len(sys.argv) <= 1:
         help()
         sys.exit(1)
-    elif (len(sys.argv) == 3):
-        print(client.command( sys.argv[2], sys.argv[1] ))
+    elif len(sys.argv) == 3:
+        print(client.command(sys.argv[2], sys.argv[1]))
     else:
-        print(client.command( sys.argv[1] ))
+        print(client.command(sys.argv[1]))
