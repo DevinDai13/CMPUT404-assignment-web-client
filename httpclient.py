@@ -21,9 +21,9 @@
 # References:
 # https://stackoverflow.com/questions/9530950/parsing-hostname-and-port-from-string-or-url/17769986
 # answered Jul 21 '13 at 7:17. Accessed 02-01-2020
-
 # https://docs.python.org/3/library/urllib.parse.html Accessed 02-01-2020
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST Accessed 02-01-2020
+# https://docs.python.org/3/library/urllib.parse.html Accessed 02-01-2020
 
 import sys
 import socket
