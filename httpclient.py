@@ -23,6 +23,7 @@
 # answered Jul 21 '13 at 7:17. Accessed 02-01-2020
 
 # https://docs.python.org/3/library/urllib.parse.html Accessed 02-01-2020
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST Accessed 02-01-2020
 
 import sys
 import socket
@@ -37,7 +38,6 @@ class HTTPResponse(object):
     def __init__(self, code=200, body=""):
         self.code = code
         self.body = body
-
 
 class HTTPClient(object):
     
